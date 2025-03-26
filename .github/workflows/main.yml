@@ -21,7 +21,7 @@ jobs:
 
       - uses: actions/setup-java@v4
         with:
-          distribution: temurin
+          distribution: 'temurin'
           java-version: '17'
           java-package: jdk+fx
           cache: sbt
@@ -52,7 +52,7 @@ jobs:
 
       - uses: actions/setup-java@v4
         with:
-          distribution: temurin
+          distribution: 'temurin'
           java-version: '17'
           java-package: jdk+fx
           cache: sbt
@@ -104,7 +104,7 @@ jobs:
 
       - uses: actions/setup-java@v4
         with:
-          distribution: temurin
+          distribution: 'temurin'
           java-version: '17'
           java-package: jdk+fx
           cache: sbt
