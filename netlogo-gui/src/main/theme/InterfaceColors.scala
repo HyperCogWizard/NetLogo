@@ -19,8 +19,6 @@ object InterfaceColors {
   def widgetText(): Color = theme.widgetText
   def widgetTextError(): Color = theme.widgetTextError
   def widgetHoverShadow(): Color = theme.widgetHoverShadow
-  def widgetPreviewCover(): Color = theme.widgetPreviewCover
-  def widgetPreviewCoverNote(): Color = theme.widgetPreviewCoverNote
   def widgetHandle(): Color = theme.widgetHandle
   def displayAreaBackground(): Color = theme.displayAreaBackground
   def displayAreaText(): Color = theme.displayAreaText
@@ -208,8 +206,6 @@ trait ColorTheme {
   def widgetText: Color
   def widgetTextError: Color
   def widgetHoverShadow: Color
-  def widgetPreviewCover: Color
-  def widgetPreviewCoverNote: Color
   def widgetHandle: Color
   def displayAreaBackground: Color
   def displayAreaText: Color
@@ -369,8 +365,6 @@ object ClassicTheme extends ColorTheme {
   override def widgetText: Color = Color.BLACK
   override def widgetTextError: Color = Color.RED
   override def widgetHoverShadow: Color = new Color(75, 75, 75)
-  override def widgetPreviewCover: Color = new Color(255, 255, 255, 100)
-  override def widgetPreviewCoverNote: Color = new Color(175, 175, 175, 75)
   override def widgetHandle: Color = DarkGray
   override def displayAreaBackground: Color = Color.WHITE
   override def displayAreaText: Color = Color.BLACK
@@ -530,8 +524,6 @@ object LightTheme extends ColorTheme {
   override def widgetText: Color = new Color(53, 54, 74)
   override def widgetTextError: Color = Color.RED
   override def widgetHoverShadow: Color = new Color(75, 75, 75)
-  override def widgetPreviewCover: Color = new Color(255, 255, 255, 100)
-  override def widgetPreviewCoverNote: Color = new Color(175, 175, 175, 75)
   override def widgetHandle: Color = DarkGray
   override def displayAreaBackground: Color = Color.WHITE
   override def displayAreaText: Color = Color.BLACK
@@ -691,8 +683,6 @@ object DarkTheme extends ColorTheme {
   override def widgetText: Color = Color.WHITE
   override def widgetTextError: Color = Color.RED
   override def widgetHoverShadow: Color = new Color(75, 75, 75)
-  override def widgetPreviewCover: Color = new Color(0, 0, 0, 85)
-  override def widgetPreviewCoverNote: Color = new Color(100, 100, 100, 75)
   override def widgetHandle: Color = MediumGray
   override def displayAreaBackground: Color = Color.BLACK
   override def displayAreaText: Color = Color.WHITE

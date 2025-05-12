@@ -104,9 +104,10 @@ class ViewWidget(workspace: GUIWorkspace) extends Widget with ViewWidgetInterfac
 
   override def setBounds(x: Int, y: Int, width: Int, height: Int): Unit = {
     val bounds = getBounds()
+    val size = width.max(height)
     // only set the bounds if they've changed
-    if (width != bounds.width || height != bounds.height || x != bounds.x || y != bounds.y) {
-      super.setBounds(x, y, width, height)
+    if (size != bounds.width || size != bounds.height || x != bounds.x || y != bounds.y) {
+      super.setBounds(x, y, size, size)
       resetSizeInfo()
     }
   }

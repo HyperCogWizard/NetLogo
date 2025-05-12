@@ -247,7 +247,6 @@ class WidgetPanel(val workspace: GUIWorkspace)
     widgetsBeingDragged = Seq(dragTarget) ++ selectedWrappers.filter(_ != dragTarget)
     widgetsBeingDragged.foreach { w =>
       w.aboutToDrag(startPressX, startPressY)
-      moveToFront(w)
     }
   }
 
@@ -707,9 +706,6 @@ class WidgetPanel(val workspace: GUIWorkspace)
   protected def selectWidget(wrapper: WidgetWrapper, selected: Boolean): Unit = {
     wrapper.selected(selected)
 
-    if (selected)
-      moveToFront(wrapper)
-
     setForegroundWrapper()
   }
 
@@ -929,15 +925,6 @@ class WidgetPanel(val workspace: GUIWorkspace)
     }
   }
 
-  def canAlignLeft: Boolean = {
-    val ordered = selectedWrappers.sortBy(_.getX)
-    val target = ordered(0)
-
-    validWrappers(ordered, (w) => {
-      new Rectangle(target.widgetX, w.widgetY, w.widgetWidth, w.widgetHeight)
-    }).filter(_ != target).nonEmpty
-  }
-
   def alignLeft(): Unit = {
     val ordered = selectedWrappers.sortBy(_.getX)
     val target = ordered(0)
@@ -945,18 +932,6 @@ class WidgetPanel(val workspace: GUIWorkspace)
     WidgetActions.moveWidgets(validWrappers(ordered, (w) => {
       new Rectangle(target.widgetX, w.widgetY, w.widgetWidth, w.widgetHeight)
     }).map(w => (w, target.getX, w.getY)))
-  }
-
-  def canAlignCenterHorizontal: Boolean = {
-    val ltr = selectedWrappers.sortBy(_.getX)
-    val center = ltr.foldLeft(0) {
-      case (sum, w) => sum + w.getX + w.getWidth / 2
-    } / ltr.size
-    val ordered = selectedWrappers.sortBy(w => (w.getX + w.getWidth / 2 - center).abs)
-
-    validWrappers(ordered, (w) => {
-      new Rectangle(center - w.widgetWidth / 2, w.widgetY, w.widgetWidth, w.widgetHeight)
-    }).nonEmpty
   }
 
   def alignCenterHorizontal(): Unit = {
@@ -971,15 +946,6 @@ class WidgetPanel(val workspace: GUIWorkspace)
     }).map(w => (w, center - w.getWidth / 2, w.getY)))
   }
 
-  def canAlignRight: Boolean = {
-    val ordered = selectedWrappers.sortBy(w => w.getX + w.getWidth).reverse
-    val target = ordered(0)
-
-    validWrappers(ordered, (w) => {
-      new Rectangle(target.widgetX + target.widgetWidth - w.widgetWidth, w.widgetY, w.widgetWidth, w.widgetHeight)
-    }).filter(_ != target).nonEmpty
-  }
-
   def alignRight(): Unit = {
     val ordered = selectedWrappers.sortBy(w => w.getX + w.getWidth).reverse
     val target = ordered(0)
@@ -989,15 +955,6 @@ class WidgetPanel(val workspace: GUIWorkspace)
     }).map(w => (w, target.getX + target.getWidth - w.getWidth, w.getY)))
   }
 
-  def canAlignTop: Boolean = {
-    val ordered = selectedWrappers.sortBy(_.getY)
-    val target = ordered(0)
-
-    validWrappers(ordered, (w) => {
-      new Rectangle(w.widgetX, target.widgetY, w.widgetWidth, w.widgetHeight)
-    }).filter(_ != target).nonEmpty
-  }
-
   def alignTop(): Unit = {
     val ordered = selectedWrappers.sortBy(_.getY)
     val target = ordered(0)
@@ -1005,18 +962,6 @@ class WidgetPanel(val workspace: GUIWorkspace)
     WidgetActions.moveWidgets(validWrappers(ordered, (w) => {
       new Rectangle(w.widgetX, target.widgetY, w.widgetWidth, w.widgetHeight)
     }).map(w => (w, w.getX, target.getY)))
-  }
-
-  def canAlignCenterVertical: Boolean = {
-    val ttb = selectedWrappers.sortBy(_.getY)
-    val center = ttb.foldLeft(0) {
-      case (sum, w) => sum + w.getY + w.getHeight / 2
-    } / ttb.size
-    val ordered = selectedWrappers.sortBy(w => (w.getY + w.getHeight / 2 - center).abs)
-
-    validWrappers(ordered, (w) => {
-      new Rectangle(w.widgetX, center - w.widgetHeight / 2, w.widgetWidth, w.widgetHeight)
-    }).nonEmpty
   }
 
   def alignCenterVertical(): Unit = {
@@ -1029,15 +974,6 @@ class WidgetPanel(val workspace: GUIWorkspace)
     WidgetActions.moveWidgets(validWrappers(ordered, (w) => {
       new Rectangle(w.widgetX, center - w.widgetHeight / 2, w.widgetWidth, w.widgetHeight)
     }).map(w => (w, w.getX, center - w.getHeight / 2)))
-  }
-
-  def canAlignBottom: Boolean = {
-    val ordered = selectedWrappers.sortBy(w => w.getY + w.getHeight).reverse
-    val target = ordered(0)
-
-    validWrappers(ordered, (w) => {
-      new Rectangle(w.widgetX, target.widgetY + target.widgetHeight - w.widgetHeight, w.widgetWidth, w.widgetHeight)
-    }).filter(_ != target).nonEmpty
   }
 
   def alignBottom(): Unit = {
@@ -1081,51 +1017,31 @@ class WidgetPanel(val workspace: GUIWorkspace)
     })
   }
 
-  def canStretchLeft: Boolean = {
-    val target = selectedWrappers.minBy(_.getX)
-    selectedWrappers.exists(w => w.horizontallyResizable && w != target)
-  }
-
   def stretchLeft(): Unit = {
     val target = selectedWrappers.minBy(_.getX)
 
-    WidgetActions.reboundWidgets(selectedWrappers.filter(_.horizontallyResizable).map(w =>
+    WidgetActions.reboundWidgets(selectedWrappers.map(w =>
       (w, new Rectangle(target.getX, w.getY, w.getX + w.getWidth - target.getX, w.getHeight))))
-  }
-
-  def canStretchRight: Boolean = {
-    val target = selectedWrappers.maxBy(w => w.getX + w.getWidth)
-    selectedWrappers.exists(w => w.horizontallyResizable && w != target)
   }
 
   def stretchRight(): Unit = {
     val target = selectedWrappers.maxBy(w => w.getX + w.getWidth)
 
-    WidgetActions.resizeWidgets(selectedWrappers.filter(_.horizontallyResizable).map(w =>
+    WidgetActions.resizeWidgets(selectedWrappers.map(w =>
       (w, target.getX + target.getWidth - w.getX, w.getHeight)))
-  }
-
-  def canStretchTop: Boolean = {
-    val target = selectedWrappers.minBy(_.getY)
-    selectedWrappers.exists(w => w.verticallyResizable && w != target)
   }
 
   def stretchTop(): Unit = {
     val target = selectedWrappers.minBy(_.getY)
 
-    WidgetActions.reboundWidgets(selectedWrappers.filter(_.verticallyResizable).map(w =>
+    WidgetActions.reboundWidgets(selectedWrappers.map(w =>
       (w, new Rectangle(w.getX, target.getY, w.getWidth, w.getY + w.getHeight - target.getY))))
-  }
-
-  def canStretchBottom: Boolean = {
-    val target = selectedWrappers.maxBy(w => w.getY + w.getHeight)
-    selectedWrappers.exists(w => w.verticallyResizable && w != target)
   }
 
   def stretchBottom(): Unit = {
     val target = selectedWrappers.maxBy(w => w.getY + w.getHeight)
 
-    WidgetActions.resizeWidgets(selectedWrappers.filter(_.verticallyResizable).map(w =>
+    WidgetActions.resizeWidgets(selectedWrappers.map(w =>
       (w, w.getWidth, target.getY + target.getHeight - w.getY)))
   }
 
