@@ -38,6 +38,7 @@ class NetLogoDocs(
     "controlling"         -> "Controlling Guide",
     "mathematica"         -> "Mathematica Link",
     "extensions"          -> "Extensions Guide",
+    "architecture"        -> "Architecture Documentation",
     "faq"                 -> "FAQ (Frequently Asked Questions)",
     "colorpicker"         -> "Color Picker Guide",
     "netlogo7intro"       -> "NetLogo 7.0.0 Changes Overview",
@@ -50,7 +51,7 @@ class NetLogoDocs(
       "interfacetab", "infotab", "codetab", "programming", "transition",
       "extension-manager", "shapes", "behaviorspace", "systemdynamics",
       "hubnet", "hubnet-authoring", "modelingcommons", "logging", "controlling",
-      "mathematica", "3d", "extensions", "extension-authoring", 
+      "mathematica", "3d", "extensions", "extension-authoring", "architecture",
       "colorpicker", "netlogo7intro", "netlogopreferences") ++
       extensions ++ Seq("faq", "dictionary")
 
