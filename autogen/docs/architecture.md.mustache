@@ -1,0 +1,459 @@
+{{> header.html}}
+
+# NetLogo Architecture Documentation
+
+This document provides comprehensive architectural documentation for NetLogo, a multi-agent programmable modeling environment. The diagrams and explanations below illustrate the system's modular design, component interactions, and key execution flows.
+
+## System Overview
+
+NetLogo is structured as a modular system with clear separation between core functionality, user interface, and extension capabilities. The high-level architecture follows a layered design pattern.
+
+```mermaid
+graph TD
+    A[NetLogo Application] --> B[GUI Layer]
+    A --> C[Headless Layer]
+    
+    B --> D[netlogo-gui]
+    C --> E[netlogo-headless]
+    
+    D --> F[netlogo-core]
+    E --> F
+    
+    F --> G[Agent System]
+    F --> H[Language Engine]
+    F --> I[Workspace Management]
+    F --> J[Model Execution]
+    
+    K[Extensions] --> F
+    L[Models Library] --> A
+    M[Documentation System] --> A
+    
+    G --> N[Turtles]
+    G --> O[Patches]
+    G --> P[Links]
+    G --> Q[Observer]
+    
+    H --> R[Parser]
+    H --> S[Compiler]
+    H --> T[Primitives]
+    H --> U[Code Generation]
+    
+    style A fill:#e1f5fe
+    style F fill:#f3e5f5
+    style G fill:#e8f5e8
+    style H fill:#fff3e0
+```
+
+The architecture is designed with the following key principles:
+- **Modularity**: Clear separation between GUI, headless, and core functionality
+- **Extensibility**: Plugin-based extension system
+- **Performance**: Optimized agent execution and code generation
+- **Cross-platform**: Java-based implementation for broad compatibility
+
+## Core Module Architecture
+
+The netlogo-core module forms the foundation of the entire system, containing the essential components for model execution and agent management.
+
+```mermaid
+graph LR
+    subgraph "netlogo-core"
+        A[Agent Management] --> B[World State]
+        C[Language Engine] --> D[Code Execution]
+        E[Workspace] --> F[Model Loading]
+        G[Plot System] --> H[Data Visualization]
+        I[Extension API] --> J[Plugin Support]
+        
+        B --> K[Turtles]
+        B --> L[Patches] 
+        B --> M[Links]
+        B --> N[Observer]
+        
+        D --> O[Primitives]
+        D --> P[Procedures]
+        D --> Q[Variables]
+        
+        F --> R[Model Parser]
+        F --> S[Code Compiler]
+        F --> T[Resource Manager]
+    end
+    
+    style A fill:#ffcdd2
+    style C fill:#c8e6c9
+    style E fill:#d1c4e9
+    style G fill:#ffe0b2
+    style I fill:#b2dfdb
+```
+
+### Key Components:
+
+- **Agent Management**: Handles creation, destruction, and lifecycle of all agent types
+- **Language Engine**: Parses, compiles, and executes NetLogo code
+- **Workspace**: Manages model state, loading, and execution context
+- **Plot System**: Provides data visualization and graphing capabilities
+- **Extension API**: Enables third-party extensions and plugins
+
+## Model Execution Flow
+
+The model execution process involves several coordinated steps, from initial loading through iterative simulation runs.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant GUI as netlogo-gui
+    participant Core as netlogo-core
+    participant World as World State
+    participant Agents as Agent System
+    participant Compiler as Language Engine
+
+    User->>GUI: Load Model
+    GUI->>Core: Parse Model File
+    Core->>Compiler: Compile Code
+    Compiler->>Core: Bytecode/AST
+    Core->>World: Initialize World
+    World->>Agents: Create Initial Agents
+    
+    User->>GUI: Setup Model
+    GUI->>Core: Execute Setup
+    Core->>Agents: Run Setup Procedures
+    Agents->>World: Update State
+    
+    loop Simulation Steps
+        User->>GUI: Go/Step
+        GUI->>Core: Execute Step
+        Core->>Agents: Run Agent Procedures
+        Agents->>World: Update Positions/State
+        World->>GUI: Refresh Display
+        GUI->>User: Visual Update
+    end
+    
+    User->>GUI: Stop/Reset
+    GUI->>Core: Halt Execution
+    Core->>World: Reset State
+```
+
+## Extension System Architecture
+
+NetLogo's extension system provides a powerful plugin architecture for extending functionality with custom primitives and capabilities.
+
+```mermaid
+graph TD
+    A[Extension Manager] --> B[Extension Discovery]
+    A --> C[Extension Loading]
+    A --> D[Extension Lifecycle]
+    
+    B --> E[Manifest Parsing]
+    B --> F[Dependency Resolution]
+    
+    C --> G[ClassLoader Management]
+    C --> H[Primitive Registration]
+    C --> I[API Binding]
+    
+    D --> J[Initialization]
+    D --> K[Cleanup]
+    D --> L[Unloading]
+    
+    M[Extension JAR] --> E
+    N[Extension Code] --> G
+    O[NetLogo Core] --> H
+    
+    H --> P[Custom Primitives]
+    I --> Q[Extension API]
+    
+    subgraph "Extension Development"
+        R[Extension Author] --> S[Implements ExtensionManager]
+        S --> T[Defines Primitives]
+        T --> U[Uses Extension API]
+        U --> V[Packages as JAR]
+    end
+    
+    V --> M
+    
+    style A fill:#e3f2fd
+    style M fill:#f1f8e9
+    style O fill:#fce4ec
+```
+
+## GUI Architecture
+
+The graphical user interface is built with a modular design supporting multiple views and interactive components.
+
+```mermaid
+graph TB
+    subgraph "netlogo-gui"
+        A[Main Application] --> B[Interface Tab]
+        A --> C[Code Tab] 
+        A --> D[Info Tab]
+        A --> E[System Dynamics]
+        
+        B --> F[World View]
+        B --> G[Control Widgets]
+        B --> H[Plot Widgets]
+        B --> I[Monitor Widgets]
+        
+        C --> J[Code Editor]
+        C --> K[Syntax Highlighting]
+        C --> L[Error Display]
+        
+        F --> M[Agent Rendering]
+        F --> N[Patch Display]
+        F --> O[Link Visualization]
+        
+        G --> P[Buttons]
+        G --> Q[Sliders]
+        G --> R[Switches]
+        G --> S[Choosers]
+        
+        M --> T[OpenGL Renderer]
+        T --> U[3D Support]
+        T --> V[2D Graphics]
+    end
+    
+    subgraph "Event Handling"
+        W[User Input] --> X[Event Dispatcher]
+        X --> Y[Widget Events]
+        X --> Z[View Events]
+        Y --> AA[Command Execution]
+        Z --> BB[World Interaction]
+    end
+    
+    style A fill:#e8eaf6
+    style F fill:#e0f2f1
+    style C fill:#fff8e1
+    style T fill:#fce4ec
+```
+
+## Documentation Generation System
+
+The documentation system uses a sophisticated pipeline to generate comprehensive user and developer documentation.
+
+```mermaid
+graph LR
+    A[Mustache Templates] --> B[Template Processor]
+    C[Markdown Sources] --> D[Markdown Processor]
+    E[Code Examples] --> F[Example Extractor]
+    G[Extension Docs] --> H[Extension Processor]
+    
+    B --> I[HTML Generation]
+    D --> I
+    F --> I
+    H --> I
+    
+    I --> J[Static Site]
+    I --> K[PDF Manual]
+    
+    L[Build Variables] --> B
+    M[Model Library] --> F
+    N[Dictionary Data] --> O[Dictionary Generator]
+    O --> I
+    
+    subgraph "Output Formats"
+        J --> P[Web Documentation]
+        K --> Q[Printable Manual]
+        R[API Docs] --> S[Developer Reference]
+    end
+    
+    subgraph "Source Files"
+        T[autogen/docs/*.mustache] --> A
+        U[Code Tab Examples] --> E
+        V[Extension Manifests] --> G
+    end
+    
+    style I fill:#e1f5fe
+    style J fill:#e8f5e8
+    style K fill:#fff3e0
+```
+
+## Data Flow Architecture
+
+Understanding how data flows through the NetLogo system during model execution is crucial for performance optimization and debugging.
+
+```mermaid
+stateDiagram-v2
+    [*] --> ModelLoading
+    ModelLoading --> CodeCompilation
+    CodeCompilation --> WorldInitialization
+    WorldInitialization --> AgentCreation
+    AgentCreation --> Ready
+    
+    Ready --> ExecutingSetup
+    ExecutingSetup --> Ready
+    
+    Ready --> ExecutingStep
+    ExecutingStep --> AgentUpdates
+    AgentUpdates --> WorldStateUpdate
+    WorldStateUpdate --> DisplayRefresh
+    DisplayRefresh --> Ready
+    
+    Ready --> ModelSaving
+    ModelSaving --> Ready
+    
+    Ready --> [*]
+    
+    state AgentUpdates {
+        [*] --> TurtleProcs
+        TurtleProcs --> PatchProcs
+        PatchProcs --> LinkProcs
+        LinkProcs --> ObserverProcs
+        ObserverProcs --> [*]
+    }
+    
+    state WorldStateUpdate {
+        [*] --> PositionUpdates
+        PositionUpdates --> VariableUpdates
+        VariableUpdates --> PlotUpdates
+        PlotUpdates --> [*]
+    }
+```
+
+## Compiler Architecture
+
+The NetLogo language compiler transforms NetLogo code into executable bytecode through multiple stages.
+
+```mermaid
+graph TD
+    A[Source Code] --> B[Lexical Analysis]
+    B --> C[Syntax Parsing] 
+    C --> D[AST Generation]
+    D --> E[Semantic Analysis]
+    E --> F[Type Checking]
+    F --> G[Code Optimization]
+    G --> H[Bytecode Generation]
+    H --> I[Runtime Execution]
+    
+    J[Symbol Table] --> E
+    J --> F
+    
+    K[Primitive Library] --> L[Primitive Resolution]
+    L --> E
+    
+    M[Extension Registry] --> N[Extension Binding]
+    N --> F
+    
+    O[Error Reporting] --> B
+    O --> C
+    O --> E
+    O --> F
+    
+    subgraph "Parser Components"
+        P[Token Stream] --> B
+        Q[Grammar Rules] --> C
+        R[Parse Tree] --> D
+    end
+    
+    subgraph "Code Generation"
+        S[Instruction Set] --> H
+        T[Jump Tables] --> H
+        U[Variable Maps] --> H
+    end
+    
+    style A fill:#e3f2fd
+    style I fill:#e8f5e8
+    style O fill:#ffebee
+```
+
+## Extension Integration Points
+
+Extensions integrate with NetLogo through well-defined API boundaries and lifecycle hooks.
+
+```mermaid
+graph TB
+    subgraph "NetLogo Core"
+        A[Extension Manager] 
+        B[Primitive Registry]
+        C[Type System]
+        D[Command Interface]
+    end
+    
+    subgraph "Extension Runtime"
+        E[Extension Class]
+        F[Primitive Implementations]
+        G[Data Types]
+        H[Resource Management]
+    end
+    
+    subgraph "Integration Points"
+        I[load/unload Hooks]
+        J[Primitive Registration]
+        K[Type Conversion]
+        L[Error Handling]
+    end
+    
+    A --> I
+    B --> J
+    C --> K
+    D --> L
+    
+    I --> E
+    J --> F
+    K --> G
+    L --> H
+    
+    E --> M[runOnce/runEverything]
+    F --> N[Custom Commands]
+    G --> O[Extension Objects]
+    H --> P[File/Network I/O]
+    
+    style A fill:#e1f5fe
+    style E fill:#f3e5f5
+    style I fill:#e8f5e8
+```
+
+## Performance and Optimization
+
+NetLogo employs several optimization strategies to ensure efficient model execution, particularly for large-scale simulations.
+
+```mermaid
+graph LR
+    subgraph "Compilation Optimizations"
+        A[Dead Code Elimination] 
+        B[Constant Folding]
+        C[Loop Unrolling]
+        D[Inline Expansion]
+    end
+    
+    subgraph "Runtime Optimizations"
+        E[Agent Set Caching]
+        F[Spatial Indexing]
+        G[Memory Pooling]
+        H[Batch Operations]
+    end
+    
+    subgraph "Display Optimizations"
+        I[Dirty Rectangle Updates]
+        J[Level of Detail]
+        K[Frustum Culling]
+        L[Texture Atlasing]
+    end
+    
+    M[Source Code] --> A
+    A --> N[Optimized Bytecode]
+    N --> E
+    E --> O[Efficient Execution]
+    
+    O --> I
+    I --> P[Smooth Animation]
+    
+    style A fill:#e8f5e8
+    style E fill:#fff3e0
+    style I fill:#e3f2fd
+```
+
+## Conclusion
+
+NetLogo's architecture demonstrates a well-designed balance between modularity, extensibility, and performance. The clear separation between core functionality, user interface, and extension capabilities enables:
+
+- **Developer Productivity**: Clean APIs and well-defined interfaces
+- **Performance Scaling**: Optimized execution paths for large simulations  
+- **Extensibility**: Rich plugin system for custom functionality
+- **Cross-platform Support**: Consistent behavior across operating systems
+- **Educational Use**: Accessible programming model for learning
+
+This architectural foundation supports NetLogo's role as both an educational tool and a platform for serious scientific modeling and simulation.
+
+## Further Reading
+
+- [Programming Guide](programming.html) - Language features and syntax
+- [Extensions Guide](extensions.html) - Creating custom extensions  
+- [System Dynamics Guide](systemdynamics.html) - System dynamics modeling
+- [Interface Guide](interface.html) - User interface components
+- [FAQ](faq.html) - Frequently asked questions
